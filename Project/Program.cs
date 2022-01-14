@@ -11,7 +11,7 @@ namespace Project
             File.Delete(@"../datasets/drugs.txt");
             StreamWriter WriteDrugs = new StreamWriter(@"../datasets/drugs.txt");
             // save changes and add new things
-            File.WriteAllLines(@"../datasets/diseases.txt", diseases);
+            //File.WriteAllLines(@"../datasets/diseases.txt", diseases);
             StreamWriter writeNewDis = new StreamWriter(@"../datasets/diseases.txt");
             //File.AppendAllLines(@"../datasets/diseases.txt", NewDiseases);
             foreach(var item in diseases)
@@ -63,6 +63,7 @@ namespace Project
                 NewEffects[i] = "";
                 NewEffects[i] = "";
             }
+
 
             drugs.Add(112345671, "asd");
             drugs.Add(11234561231, "2sd");
