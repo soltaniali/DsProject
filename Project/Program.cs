@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Project
 {
@@ -172,7 +173,8 @@ namespace Project
         }
         private static void Main()
         {
-            DateTime start = DateTime.Now;
+            Stopwatch time = new Stopwatch();
+            time.Start();
             // read from memory
             var diseases = ReadFromDisease();
             var alergies = ReadFromAlergies();
@@ -196,8 +198,8 @@ namespace Project
             SaveAlergies(alergies);
             
 
-            DateTime end = DateTime.Now;
-            Console.WriteLine((end - start));
+            time.Stop();
+            Console.WriteLine(time.ElapsedMilliseconds);
         }
     }
 }
