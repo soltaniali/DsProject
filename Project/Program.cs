@@ -180,7 +180,15 @@ namespace Project
             var drugs = ReadFromDrugs();
             // reading Ends
 
-            var temp = effects["Drug_pxouyeenru"];
+            effects["Drug_pxouyeenru"] = new Hashtable {{"adultCold", "exelent"}};
+            foreach (DictionaryEntry item in effects)
+            {
+                Hashtable t = (Hashtable) item.Value;
+                if (t.ContainsKey("Drug_pxouyeenru"))
+                    t.Remove("Drug_pxouyeenru");
+
+            }
+
             // save all changes
             SaveDrugs(drugs);
             SaveDiseases(diseases);
