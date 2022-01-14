@@ -11,6 +11,7 @@ namespace Project
         {
             // save changes and add new things
             //diseases
+            File.Delete(@"../datasets/diseases.txt");
             StreamWriter writeNewDis = new StreamWriter(@"../datasets/diseases.txt");
             foreach(var item in diseases)
             {
