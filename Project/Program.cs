@@ -91,10 +91,8 @@ namespace Project
             }
 
             writerAlergies.Close();
-            // drugs
             
         }
-
         public static List<string> ReadFromDisease()
         {
             var diseases = new List<string>();
@@ -164,7 +162,6 @@ namespace Project
             {
                 counter++;
                 divider2 = Line.Split(' ', ':');
-                //drugs.Add(counter, $"{divider2[0]}{divider2[1]}");
                 drugs.Add(divider2[0], divider2[3]);
             }
             reader.Close();
