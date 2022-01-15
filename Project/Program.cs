@@ -2,52 +2,41 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Project
 {
-    class Program
+    internal class Program
     {
-        public static void Save (List<string> diseases , Hashtable alergies , Hashtable effects , Hashtable drugs )
+        public static void SaveDrugs(Hashtable drugs)
         {
-            // save changes and add new things
-            //diseases
+            File.Delete(@"../datasets/drugs.txt");
+            StreamWriter WriteDrugs = new StreamWriter(@"../datasets/drugs.txt");
+            foreach (DictionaryEntry item in drugs)
+            {
+                if (item.Value != null) WriteDrugs.WriteLine("{0} : {1}", item.Key.ToString(), item.Value.ToString());
+            }
+
+            WriteDrugs.Close();
+        }
+        public static void SaveDiseases(List<string> diseases)
+        {
             File.Delete(@"../datasets/diseases.txt");
             StreamWriter writeNewDis = new StreamWriter(@"../datasets/diseases.txt");
-            foreach(var item in diseases)
+            foreach (var item in diseases)
             {
                 writeNewDis.WriteLine(item);
             }
+
             writeNewDis.Close();
-            // effects
+        }
+        public static void SaveEffects(Hashtable effects)
+        {
             File.Delete(@"../datasets/effects.txt");
             StreamWriter writerEffects = new StreamWriter(@"../datasets/effects.txt");
             int counter = 0;
             string form = "";
             foreach (DictionaryEntry item in effects)
-            {
-                form = item.Key.ToString();
-                form += " :";
-                foreach(DictionaryEntry obj in (Hashtable)item.Value)
-                {
-                    counter++;
-                    form += " (";
-                    form += obj.Key.ToString();
-                    form += ",";
-                    form += obj.Value.ToString();
-                    form += ") ";
-                    if(counter < ((Hashtable)item.Value).Count)
-                    {
-                        form += ";";
-                    }
-                }
-                writerEffects.WriteLine(form);
-                form = "";
-            }
-            writerEffects.Close();
-            //alergies
-            File.Delete(@"../datasets/alergies.txt");
-            StreamWriter writerAlergies = new StreamWriter(@"../datasets/alergies.txt");
-            foreach (DictionaryEntry item in alergies)
             {
                 form = item.Key.ToString();
                 form += " :";
@@ -64,34 +53,63 @@ namespace Project
                         form += ";";
                     }
                 }
+
+                writerEffects.WriteLine(form);
+                form = "";
+                counter = 0;
+            }
+
+            writerEffects.Close();
+        }
+        public static void SaveAlergies(Hashtable alergies)
+        {
+            var form = "";
+            var counter = 0;
+            File.Delete(@"../datasets/alergies.txt");
+            var writerAlergies = new StreamWriter(@"../datasets/alergies.txt");
+            foreach (DictionaryEntry item in alergies)
+            {
+                form = item.Key.ToString();
+                form += " :";
+                foreach (DictionaryEntry obj in (Hashtable) item.Value)
+                {
+                    counter++;
+                    form += " (";
+                    form += obj.Key.ToString();
+                    form += ",";
+                    form += obj.Value.ToString();
+                    form += ") ";
+                    if (counter < ((Hashtable) item.Value).Count)
+                    {
+                        form += ";";
+                    }
+                }
+
                 writerAlergies.WriteLine(form);
                 form = "";
+                counter = 0;
             }
+
             writerAlergies.Close();
             // drugs
-            File.Delete(@"../datasets/drugs.txt");
-            StreamWriter WriteDrugs = new StreamWriter(@"../datasets/drugs.txt");
-            foreach (DictionaryEntry item in drugs)
-            {
-                WriteDrugs.WriteLine("{0} : {1}", item.Key.ToString(), item.Value.ToString() );
-            }
-            WriteDrugs.Close();
+            
         }
-        static void Main(string[] args)
-        {
-            DateTime start = DateTime.Now;
-            string Line = "";
-            int counter = 0;
-            string[] divider2 = new string[2];
-            // read from memory
-            List<string> diseases = new List<string>();
-            diseases.AddRange( File.ReadAllLines(@"../datasets/diseases.txt"));
 
+        public static List<string> ReadFromDisease()
+        {
+            var diseases = new List<string>();
+            diseases.AddRange(File.ReadAllLines(@"../datasets/diseases.txt"));
+
+            return diseases;
+        }
+        public static Hashtable ReadFromAlergies()
+        {
+            var Line = "";
             var alergies = new Hashtable();
             StreamReader readerAlergies = new StreamReader(@"../datasets/alergies.txt");
             while ((Line = readerAlergies.ReadLine()) != null)
             {
-                string[] tempstring = Line.Split(' ', ':', ';' , ')' , '(');
+                string[] tempstring = Line.Split(' ', ':', ';', ')', '(');
                 var temp = new Hashtable();
                 for (int i = 1; i < tempstring.Length; i++)
                 {
@@ -107,8 +125,11 @@ namespace Project
                 }
             }
             readerAlergies.Close();
-            //string[] alergies = File.ReadAllLines(@"../datasets/alergies.txt");
-
+            return alergies;
+        }
+        public static Hashtable ReadFromEffects()
+        {
+            var Line = "";
             var effects = new Hashtable();
             StreamReader readerEffects = new StreamReader(@"../datasets/effects.txt");
             while ((Line = readerEffects.ReadLine()) != null)
@@ -129,33 +150,56 @@ namespace Project
                 }
             }
             readerEffects.Close();
-            //string[] effects = File.ReadAllLines(@"../datasets/effects.txt");
 
+            return effects;
+        }
+        public static Hashtable ReadFromDrugs()
+        {
+            var Line = "";
+            var counter = 0;
+            var divider2 = new string[2];
             var drugs = new Hashtable();
-            StreamReader reader = new StreamReader(@"../datasets/drugs.txt");
+            var reader = new StreamReader(@"../datasets/drugs.txt");
             while ((Line = reader.ReadLine()) != null)
             {
                 counter++;
-                divider2 = Line.Split(' ' , ':');
-                drugs.Add(counter, $"{divider2[0]}{divider2[1]}");
+                divider2 = Line.Split(' ', ':');
+                //drugs.Add(counter, $"{divider2[0]}{divider2[1]}");
+                drugs.Add(divider2[0], divider2[3]);
             }
             reader.Close();
+
+            return drugs;
+        }
+        private static void Main()
+        {
+            Stopwatch time = new Stopwatch();
+            time.Start();
+            // read from memory
+            var diseases = ReadFromDisease();
+            var alergies = ReadFromAlergies();
+            var effects = ReadFromEffects();
+            var drugs = ReadFromDrugs();
             // reading Ends
 
+            effects["Drug_pxouyeenru"] = new Hashtable {{"adultCold", "exelent"}};
+            foreach (DictionaryEntry item in effects)
+            {
+                Hashtable t = (Hashtable) item.Value;
+                if (t.ContainsKey("Drug_pxouyeenru"))
+                    t.Remove("Drug_pxouyeenru");
 
-
-            drugs.Add(112345671, "asd");
-            drugs.Add(11234561231, "2sd");
-            drugs.Add(11234531, "2123sd");
-            drugs.Add(11234532, "2124sd");
-           // NewDiseases[0] = "asghar";
-            Console.WriteLine("Hello World!");
-
+            }
 
             // save all changes
-            //Save(diseases, NewDiseases, alergies, NewAlergies, effects, NewEffects, drugs);
-            DateTime end = DateTime.Now;
-            Console.WriteLine((end - start));
+            SaveDrugs(drugs);
+            SaveDiseases(diseases);
+            SaveEffects(effects);
+            SaveAlergies(alergies);
+            
+
+            time.Stop();
+            Console.WriteLine(time.ElapsedMilliseconds);
         }
     }
 }
