@@ -61,13 +61,13 @@ namespace Project
 
             writerEffects.Close();
         }
-        public static void SaveAlergies(Hashtable alergies)
+        public static void SaveAllergies(Hashtable allergies)
         {
             var form = "";
             var counter = 0;
             File.Delete(@"../datasets/alergies.txt");
             var writerAlergies = new StreamWriter(@"../datasets/alergies.txt");
-            foreach (DictionaryEntry item in alergies)
+            foreach (DictionaryEntry item in allergies)
             {
                 form = item.Key.ToString();
                 form += " :";
@@ -100,7 +100,7 @@ namespace Project
 
             return diseases;
         }
-        public static Hashtable ReadFromAlergies()
+        public static Hashtable ReadFromAllergies()
         {
             var Line = "";
             var alergies = new Hashtable();
@@ -168,35 +168,383 @@ namespace Project
 
             return drugs;
         }
-        private static void Main()
+        public static void CreateDrug(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
+            Hashtable allergies)
         {
-            Stopwatch time = new Stopwatch();
-            time.Start();
-            // read from memory
-            var diseases = ReadFromDisease();
-            var alergies = ReadFromAlergies();
-            var effects = ReadFromEffects();
-            var drugs = ReadFromDrugs();
-            // reading Ends
+            var x = new Stopwatch();
+            x.Start();
 
-            effects["Drug_pxouyeenru"] = new Hashtable {{"adultCold", "exelent"}};
-            foreach (DictionaryEntry item in effects)
+            if (!drugs.ContainsKey(drugName))
             {
-                Hashtable t = (Hashtable) item.Value;
-                if (t.ContainsKey("Drug_pxouyeenru"))
-                    t.Remove("Drug_pxouyeenru");
+                //convert drug name in hash table to array to access with index
+                var drugsName = new string[drugs.Count];
+                drugs.Keys.CopyTo(drugsName, 0);
 
+                var random = new Random();
+                var numberRandomDrug = random.Next(1, 4);
+
+                var temp = new Hashtable();
+                for (var i = 0; i < numberRandomDrug; i++)
+                {
+                    var index = random.Next(0, drugs.Count);
+                    var effectiveTemp = "Eff_" + GenerateRandomString();
+
+                    temp.Add(drugsName[index], effectiveTemp);
+                }
+                //add effects
+                effects.Add(drugName, temp);
+
+                //add to diseases data set
+                var numberDiseases = random.Next(1, 5);
+                for (var i = 0; i < numberDiseases; i++)
+                {
+                    var index = random.Next(0, disease.Count);
+                    const string effectMark = "+-";
+
+                    if (allergies[disease[index]] is Hashtable tempDisease) tempDisease.Add(drugName, effectMark[random.Next(effectMark.Length)]);
+                    else
+                    {
+                        allergies.Add(disease[index],
+                            new Hashtable {{drugName, effectMark[random.Next(effectMark.Length)]}});
+                    }
+                }
+
+                //add the drug to drugs data set
+                var drugPrice = random.Next(1000, 100000);
+                drugs.Add(drugName, Convert.ToString(drugPrice));
+
+                SaveDrugs(drugs);
+                SaveEffects(effects);
+                SaveAllergies(allergies);
+            }
+            else
+                Console.WriteLine("already exist this drug in 'drugs' data set!");
+
+            x.Stop();
+            Console.WriteLine("Execute time for create new Drug process: " + x.ElapsedMilliseconds + " ms");
+        }
+        public static void CreateDisease(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
+            Hashtable allergies)
+        {
+            var x = new Stopwatch();
+            x.Start();
+
+            if (!disease.Contains(diseaseName))
+            {
+                //convert drug name in hash table to array to access with index
+                var drugsName = new string[drugs.Count];
+                drugs.Keys.CopyTo(drugsName, 0);
+
+                var random = new Random();
+                var numberRandomDrug = random.Next(1, 5);
+
+                var temp = new Hashtable();
+                for (var i = 0; i < numberRandomDrug; i++)
+                {
+                    var index = random.Next(0, drugs.Count);
+                    const string effectMark = "+-";
+                    temp.Add(drugsName[index], effectMark[random.Next(effectMark.Length)]);
+                }
+
+                //add the disease to diseases data set
+                disease.Add(diseaseName);
+                allergies.Add(diseaseName, temp);
+
+                SaveDiseases(disease);
+                SaveAllergies(allergies);
+            }
+            else
+                Console.WriteLine("already exist this disease in 'drugs' data set!");
+
+            x.Stop();
+            Console.WriteLine("Execute time for create new Disease process: " + x.ElapsedMilliseconds + " ms");
+        }
+        public static void DeleteDrug(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
+            Hashtable allergies)
+        {
+            var x = new Stopwatch();
+            x.Start();
+
+            if (drugs.ContainsKey(drugName))
+            {
+                drugs.Remove(drugName);
+                if (effects.ContainsKey(drugName))
+                    effects.Remove(drugName);
+
+                foreach (DictionaryEntry item in effects)
+                {
+                    Hashtable t = (Hashtable)item.Value;
+                    if (t != null && t.ContainsKey(drugName))
+                        t.Remove(drugName);
+
+                }
+
+                foreach (DictionaryEntry item in allergies)
+                {
+                    Hashtable t = (Hashtable)item.Value;
+                    if (t != null && t.ContainsKey(drugName))
+                        t.Remove(drugName);
+
+                }
+
+                SaveDrugs(drugs);
+                SaveEffects(effects);
+                SaveAllergies(allergies);
+            }
+            else
+                Console.WriteLine("Not exist this drug in 'drugs' data set!");
+
+            x.Stop();
+            Console.WriteLine("Execute time for delete the Drug process: " + x.ElapsedMilliseconds + " ms");
+        }
+        public static void DeleteDisease(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
+            Hashtable allergies)
+        {
+            var x = new Stopwatch();
+            x.Start();
+
+            if (disease.Contains(diseaseName))
+            {
+                disease.Remove(diseaseName);
+
+                if (allergies.ContainsKey(diseaseName))
+                    allergies.Remove(diseaseName);
+
+                SaveDiseases(disease);
+                SaveAllergies(allergies);
+            }
+            else
+                Console.WriteLine("Not exist this disease in 'diseases' data set!");
+
+            x.Stop();
+            Console.WriteLine("Execute time for delete the disease process: " + x.ElapsedMilliseconds + " ms");
+        }
+        public static void SearchByDrugName(string drugName, Hashtable drugs)
+        {
+            var x = new Stopwatch();
+            x.Start();
+
+            if (drugs.ContainsKey(drugName))
+                Console.WriteLine("Name of drug: " + drugName +
+                                  "\nPrice of drug: " + drugs[drugName]);
+            else
+                Console.WriteLine("Not found this drug in 'drugs' data set!");
+
+            x.Stop();
+            Console.WriteLine("Execute time for search the Drug: " + x.Elapsed);
+        }
+        public static void SearchByDiseaseName(string diseaseName, List<string> disease)
+        {
+            var x = new Stopwatch();
+            x.Start();
+
+            if (disease.Contains(diseaseName))
+                Console.WriteLine("Name of disease: " + diseaseName);
+            else
+                Console.WriteLine("Not found this disease in 'diseases' data set!");
+
+            x.Stop();
+            Console.WriteLine("Execute time for search the Disease: " + x.Elapsed);
+        }
+        public static void SearchByDrugName(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
+            Hashtable allergies)
+        {
+            var x = new Stopwatch();
+            x.Start();
+            if (drugs.ContainsKey(drugName))
+            {
+                Console.WriteLine("Related to the 'effects' data set:");
+                foreach (DictionaryEntry item in effects)
+                {
+                    if (item.Value is Hashtable t && t.ContainsKey(drugName))
+                        Console.WriteLine(drugName + " has effect: " + t[drugName] + " on " + item.Key);
+                }
+                Console.WriteLine("----------------------------------\nRelated to the 'allergies' data set:");
+                foreach (DictionaryEntry item in allergies)
+                {
+                    if (item.Value is Hashtable t && t.ContainsKey(drugName))
+                        Console.WriteLine(drugName + " has effect: " + t[drugName] + " on " + item.Key);
+                }
+                Console.WriteLine("----------------------------------");
+            }
+            else
+                Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
+            x.Stop();
+            Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
+                              x.ElapsedMilliseconds + " ms");
+        }
+        public static void SearchByDiseaseName(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
+            Hashtable allergies)
+        {
+            var x = new Stopwatch();
+            x.Start();
+            if (disease.Contains(diseaseName))
+            {
+                if (allergies.ContainsKey(diseaseName))
+                {
+                    if (allergies[diseaseName] is Hashtable t)
+                        foreach (DictionaryEntry item in t)
+                        {
+                            if (item.Value != null && (string) item.Value == "+")
+                                Console.WriteLine(item.Key + " has effect: " + item.Value);
+                        }
+                }
+                Console.WriteLine("----------------------------------");
+            }
+            else
+                Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
+            x.Stop();
+            Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
+                              x.ElapsedMilliseconds + " ms");
+        }
+        public static string GenerateRandomString()
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz";
+            var stringChars = new char[10];
+            var random = new Random();
+
+            for (var i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
             }
 
-            // save all changes
-            SaveDrugs(drugs);
-            SaveDiseases(diseases);
-            SaveEffects(effects);
-            SaveAlergies(alergies);
-            
+            var finalString = new String(stringChars);
+            return finalString;
+        }
+        public static void UserInterface()
+        {
+            Hashtable drugs = new Hashtable(), effects = new Hashtable(), allergies = new Hashtable();
+            var diseases = new List<string>();
+            var time = new Stopwatch();
 
-            time.Stop();
-            Console.WriteLine(time.ElapsedMilliseconds);
+            Console.WriteLine("********** Menu **********" +
+                              "\nPlease inter the number of Order:" +
+                              "\n1- Read from data sets and store in data structure" +
+                              "\n2- Inter the new drug that you store in data set" +
+                              "\n3- Inter the new disease that you store in data set" +
+                              "\n4- Inter the drug name that you remove from data set" +
+                              "\n5- Inter the disease name that you remove from data set" +
+                              "\n6- search in 'drugs' data set by name" +
+                              "\n7- search in 'disease' data set by name" +
+                              "\n8- search in 'drugs', 'effects', 'allergies' data set by drugName" +
+                              "\n9- search in 'diseases', 'allergies' data set by diseaseName" +
+                              "\n10- exit" +
+                              "\n**************************");
+            var counter = 0;
+            while (true)
+            {
+                var order = Convert.ToInt32(Console.ReadLine());
+                if (order != 1 && order != 10 && counter == 0)
+                    Console.WriteLine("First should you read data from the data sets!!");
+                else if(order == 1)
+                {
+                    time.Start();
+                    // read from memory
+                     diseases = ReadFromDisease();
+                     allergies = ReadFromAllergies();
+                     effects = ReadFromEffects();
+                     drugs = ReadFromDrugs();
+                    time.Stop();
+                    Console.WriteLine("Execute time for read data :" + time.ElapsedMilliseconds + " ms");
+
+                    counter++;
+                }
+                else if (order == 2)
+                {
+                    Console.WriteLine("Inter name of drug:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        CreateDrug(replace, drugs, diseases, effects, allergies);
+                    }
+                    counter++;
+                }
+                else if (order == 3)
+                {
+                    Console.WriteLine("Inter name of disease:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        CreateDisease(replace, drugs, diseases, effects, allergies);
+                    }
+                    counter++;
+                }
+                else if (order == 4)
+                {
+                    Console.WriteLine("Inter name of the drug that you want remove:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        DeleteDrug(replace, drugs, diseases, effects, allergies);
+                    }
+                    counter++;
+                }
+                else if (order == 5)
+                {
+                    Console.WriteLine("Inter name of the disease that you want remove:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        DeleteDisease(replace, drugs, diseases, effects, allergies);
+                    }
+                    counter++;
+                }
+                else if (order == 6)
+                {
+                    Console.WriteLine("Inter name of the drug that you want to search:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        SearchByDrugName(replace, drugs);
+                    }
+                    counter++;
+                }
+                else if (order == 7)
+                {
+                    Console.WriteLine("Inter name of the disease that you want to search:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        SearchByDiseaseName(replace, diseases);
+                    }
+                    counter++;
+                }
+                else if (order == 8)
+                {
+                    Console.WriteLine("Inter name of the drug that you want to search in 'effects', 'allergies':");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        SearchByDrugName(replace, drugs, diseases, effects, allergies);
+                    }
+                    counter++;
+                }
+                else if (order == 9)
+                {
+                    Console.WriteLine(
+                        "Inter name of the disease that you want to search in 'diseases', 'allergies' data set:");
+                    var x = Console.ReadLine();
+                    if (x != null)
+                    {
+                        var replace = x.Replace(" ", string.Empty);
+                        SearchByDiseaseName(replace, drugs, diseases, effects, allergies);
+                    }
+                    counter++;
+                }
+                if (order == 10)
+                    break;
+            }
+        }
+        private static void Main()
+        {
+            UserInterface();
         }
     }
 }
