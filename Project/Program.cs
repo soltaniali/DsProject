@@ -436,7 +436,7 @@ namespace Project
                 var order = Convert.ToInt32(Console.ReadLine());
                 if (order != 1 && order != 10 && counter == 0)
                     Console.WriteLine("First should you read data from the data sets!!");
-                else if(order == 1)
+                else if(order == 1 && counter == 0)
                 {
                     time.Start();
                     // read from memory
@@ -449,6 +449,8 @@ namespace Project
 
                     counter++;
                 }
+                else if (order == 1 && counter > 0)
+                    Console.WriteLine("data read from data set for once");
                 else if (order == 2)
                 {
                     Console.WriteLine("Inter name of drug:");
