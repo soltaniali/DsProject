@@ -221,7 +221,7 @@ namespace Project
                 Console.WriteLine("already exist this drug in 'drugs' data set!");
 
             x.Stop();
-            Console.WriteLine("Execute time for create new Drug process: " + x.ElapsedMilliseconds + " ms");
+            Console.WriteLine("Execute time for create new Drug process: " + x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void CreateDisease(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
             Hashtable allergies)
@@ -257,7 +257,7 @@ namespace Project
                 Console.WriteLine("already exist this disease in 'drugs' data set!");
 
             x.Stop();
-            Console.WriteLine("Execute time for create new Disease process: " + x.ElapsedMilliseconds + " ms");
+            Console.WriteLine("Execute time for create new Disease process: " + x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void DeleteDrug(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
             Hashtable allergies)
@@ -295,7 +295,7 @@ namespace Project
                 Console.WriteLine("Not exist this drug in 'drugs' data set!");
 
             x.Stop();
-            Console.WriteLine("Execute time for delete the Drug process: " + x.ElapsedMilliseconds + " ms");
+            Console.WriteLine("Execute time for delete the Drug process: " + x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void DeleteDisease(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
             Hashtable allergies)
@@ -317,7 +317,7 @@ namespace Project
                 Console.WriteLine("Not exist this disease in 'diseases' data set!");
 
             x.Stop();
-            Console.WriteLine("Execute time for delete the disease process: " + x.ElapsedMilliseconds + " ms");
+            Console.WriteLine("Execute time for delete the disease process: " + x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void SearchByDrugName(string drugName, Hashtable drugs)
         {
@@ -331,7 +331,7 @@ namespace Project
                 Console.WriteLine("Not found this drug in 'drugs' data set!");
 
             x.Stop();
-            Console.WriteLine("Execute time for search the Drug: " + x.Elapsed);
+            Console.WriteLine("Execute time for search the Drug: " + x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void SearchByDiseaseName(string diseaseName, List<string> disease)
         {
@@ -344,7 +344,7 @@ namespace Project
                 Console.WriteLine("Not found this disease in 'diseases' data set!");
 
             x.Stop();
-            Console.WriteLine("Execute time for search the Disease: " + x.Elapsed);
+            Console.WriteLine("Execute time for search the Disease: " + x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void SearchByDrugName(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
             Hashtable allergies)
@@ -371,7 +371,7 @@ namespace Project
                 Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
             x.Stop();
             Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
-                              x.ElapsedMilliseconds + " ms");
+                              x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static void SearchByDiseaseName(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
             Hashtable allergies)
@@ -395,7 +395,7 @@ namespace Project
                 Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
             x.Stop();
             Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
-                              x.ElapsedMilliseconds + " ms");
+                              x.ElapsedMilliseconds * 1000 + " Micros");
         }
         public static string GenerateRandomString()
         {
@@ -411,10 +411,75 @@ namespace Project
             var finalString = new String(stringChars);
             return finalString;
         }
+        public static void CheckEffects(Dictionary<string , int> noskhe , Hashtable effects)
+        {
+            var y = new Stopwatch();
+            y.Start();
+            foreach (var item in noskhe)
+            {
+                if( effects is Hashtable t && t.ContainsKey(item.Key))
+                {
+                    foreach(var daro in noskhe)
+                    {
+                        if(daro.Key != item.Key && t[item.Key] is Hashtable x && x.Contains(daro.Key))
+                        {
+                            Console.WriteLine(item.Key + ":" + daro.Key + " has tadakhol " +  x[daro.Key].ToString());
+                        }
+                    }
+                }
+            }
+            y.Stop();
+            Console.WriteLine("time : " +
+                              y.ElapsedMilliseconds * 1000 + " Micros");
+
+        }
+        public static bool EnterNoskhe(ref Dictionary<string, int> noskhe) 
+        {
+            var x = new Stopwatch();
+            x.Start();
+            Console.WriteLine(
+                " first enter the nums of dugs and thenEnter name of the drug and then num of drugs");
+            int numberOfDrugs = 0;
+            string[] Line = new string[2];
+            try
+            {
+                numberOfDrugs = int.Parse(Console.ReadLine());
+            }
+            catch
+            {
+                Console.WriteLine("lotfan yek adad vared konid");
+                x.Stop();
+                Console.WriteLine("time :" +
+                                  x.ElapsedMilliseconds * 1000 + " Micros");
+                return false;
+            }
+            for (int i = 0; i < numberOfDrugs; i++)
+            {
+                Line = Console.ReadLine().Split(' ');
+                try
+                {
+                    noskhe.Add(Line[0], int.Parse(Line[1]));
+                }
+                catch
+                {
+                    Console.WriteLine("lotfan noskhe ra dorost vared konid");
+                    noskhe.Clear();
+                    x.Stop();
+                    Console.WriteLine("time"+
+                                      x.ElapsedMilliseconds * 1000 + " Micros");
+                    return false;
+                }
+            }
+            x.Stop();
+            Console.WriteLine("time : " +
+                              x.ElapsedMilliseconds * 1000 + " Micros");
+            return true;
+        }
         public static void UserInterface()
         {
             Hashtable drugs = new Hashtable(), effects = new Hashtable(), allergies = new Hashtable();
             var diseases = new List<string>();
+            var noskhe = new Dictionary<string, int>();
             var time = new Stopwatch();
 
             Console.WriteLine("********** Menu **********" +
@@ -429,6 +494,9 @@ namespace Project
                               "\n8- search in 'drugs', 'effects', 'allergies' data set by drugName" +
                               "\n9- search in 'diseases', 'allergies' data set by diseaseName" +
                               "\n10- exit" +
+                              "\n11- enter the noskhe" +
+                              "\n12- chack tadakhol drugs in noskhe" +
+                              "\n13- clean noskhe" +
                               "\n**************************");
             var counter = 0;
             while (true)
@@ -538,6 +606,34 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         SearchByDiseaseName(replace, drugs, diseases, effects, allergies);
                     }
+                    counter++;
+                }
+                else if (order == 11)
+                {
+                    var temp = EnterNoskhe(ref noskhe);
+                    if (temp)
+                    {
+                        Console.WriteLine("noskhe created .");
+                    }
+                    else
+                    {
+                        Console.WriteLine("dobare talash konid .");
+                    }
+                    counter++;
+                }
+                else if (order == 12)
+                {
+                    CheckEffects(noskhe, effects);
+                }
+                else if (order == 13)
+                {
+                    var y = new Stopwatch();
+                    y.Start();
+                    noskhe.Clear();
+                    Console.WriteLine("cleared");
+                    y.Stop();
+                    Console.WriteLine("time : " +
+                                      y.ElapsedMilliseconds * 1000 + " Micros");
                     counter++;
                 }
                 if (order == 10)
