@@ -445,7 +445,7 @@ namespace Project
                      effects = ReadFromEffects();
                      drugs = ReadFromDrugs();
                     time.Stop();
-                    Console.WriteLine("Execute time for read data :" + time.ElapsedMilliseconds + " ms");
+                    Console.WriteLine("Execute time for read data :" + time.ElapsedMilliseconds * 1000 + " Micros");
 
                     counter++;
                 }
