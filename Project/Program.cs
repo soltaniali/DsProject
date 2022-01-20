@@ -228,9 +228,9 @@ namespace Project
                 var drugPrice = random.Next(1000, 100000);
                 drugs.Add(drugName, Convert.ToString(drugPrice));
 
-                SaveDrugs(drugs);
-                SaveEffects(effects);
-                SaveAllergies(allergies);
+                //SaveDrugs(drugs);
+                //SaveEffects(effects);
+                //SaveAllergies(allergies);
             }
             else
             {
@@ -273,8 +273,8 @@ namespace Project
                 disease.Add(diseaseName);
                 allergies.Add(diseaseName, temp);
 
-                SaveDiseases(disease);
-                SaveAllergies(allergies);
+                //SaveDiseases(disease);
+                //SaveAllergies(allergies);
             }
             else
             {
@@ -299,34 +299,34 @@ namespace Project
                 if (effects.ContainsKey(drugName))
                     effects.Remove(drugName);
 
-                var tempEffects = new List<string>();
+                //var tempEffects = new List<string>();
                 foreach (DictionaryEntry item in effects)
                 {
                     Hashtable t = (Hashtable)item.Value;
                     if (t != null && t.ContainsKey(drugName))
                         t.Remove(drugName);
-                    if (t is { Count: 0 })
-                        tempEffects.Add(item.Key.ToString());
+                    //if (t is { Count: 0 })
+                    //    tempEffects.Add(item.Key.ToString());
 
                 }
-                foreach (var item in tempEffects)
-                    effects.Remove(item);
+                //foreach (var item in tempEffects)
+                //    effects.Remove(item);
 
-                var tempDiseases = new List<string>();
+                //var tempDiseases = new List<string>();
                 foreach (DictionaryEntry item in allergies)
                 {
                     var t = (Hashtable)item.Value;
                     if (t != null && t.ContainsKey(drugName))
                         t.Remove(drugName);
-                    if (t is {Count: 0})
-                        tempDiseases.Add(item.Key.ToString());
+                    //if (t is { Count: 0 })
+                    //    tempDiseases.Add(item.Key.ToString());
                 }
 
-                foreach (var item in tempDiseases)
-                    allergies.Remove(item);
-                SaveDrugs(drugs);
-                SaveEffects(effects);
-                SaveAllergies(allergies);
+                //foreach (var item in tempDiseases)
+                //    allergies.Remove(item);
+                //SaveDrugs(drugs);
+                //SaveEffects(effects);
+                //SaveAllergies(allergies);
             }
             else
             {
@@ -354,8 +354,8 @@ namespace Project
                 if (allergies.ContainsKey(diseaseName))
                     allergies.Remove(diseaseName);
 
-                SaveDiseases(disease);
-                SaveAllergies(allergies);
+                //SaveDiseases(disease);
+                //SaveAllergies(allergies);
             }
             else
             {
@@ -704,7 +704,7 @@ namespace Project
                 }
             }
             
-            SaveDrugs(drugs);
+            //SaveDrugs(drugs);
             x.Stop();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("time : " +
@@ -753,7 +753,7 @@ namespace Project
                               "\n15- clean referral Diseases" +
                               "\n16- Calculate price" +
                               "\n17- Increase price of drugs" +
-                              "\n18- exit" +
+                              "\n18- exit and save files" +
                               "\n**************************");
             Console.ResetColor();
             var counter = 0;
@@ -945,7 +945,18 @@ namespace Project
                     PriceIncrease(drugs);
                 }
                 else if (order == 18)
+                {
+                    var x = new Stopwatch();
+                    x.Start();
+                    SaveDiseases(diseases);
+                    SaveAllergies(allergies);
+                    SaveDrugs(drugs);
+                    SaveEffects(effects);
+                    x.Stop();
+                    Console.WriteLine("time : " +
+                                      x.ElapsedMilliseconds * 1000 + " Micros");
                     break;
+                }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
