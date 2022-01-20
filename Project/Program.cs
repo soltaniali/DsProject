@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Project
 {
@@ -182,20 +183,25 @@ namespace Project
 
                 var random = new Random();
                 var numberRandomDrug = random.Next(1, 4);
-
+                Console.WriteLine("Number of random drugs: " + numberRandomDrug +
+                                  "\n-------------------------------------");
+                Console.WriteLine("random effects that generated:");
                 var temp = new Hashtable();
                 for (var i = 0; i < numberRandomDrug; i++)
                 {
                     var index = random.Next(0, drugs.Count);
                     var effectiveTemp = "Eff_" + GenerateRandomString();
+                    Console.WriteLine(effectiveTemp);
 
                     temp.Add(drugsName[index], effectiveTemp);
                 }
+                Console.WriteLine("-------------------------------------");
                 //add effects
                 effects.Add(drugName, temp);
 
                 //add to diseases data set
                 var numberDiseases = random.Next(1, 5);
+                Console.WriteLine("Number of random diseases: " + numberDiseases);
                 for (var i = 0; i < numberDiseases; i++)
                 {
                     var index = random.Next(0, disease.Count);
@@ -237,7 +243,8 @@ namespace Project
 
                 var random = new Random();
                 var numberRandomDrug = random.Next(1, 5);
-
+                Console.WriteLine("Number of random drugs that generated: " + numberRandomDrug +
+                                  "\n-----------------------------------");
                 var temp = new Hashtable();
                 for (var i = 0; i < numberRandomDrug; i++)
                 {
@@ -271,22 +278,31 @@ namespace Project
                 if (effects.ContainsKey(drugName))
                     effects.Remove(drugName);
 
+                var tempEffects = new List<string>();
                 foreach (DictionaryEntry item in effects)
                 {
                     Hashtable t = (Hashtable)item.Value;
                     if (t != null && t.ContainsKey(drugName))
                         t.Remove(drugName);
+                    if (t is { Count: 0 })
+                        tempEffects.Add(item.Key.ToString());
 
                 }
+                foreach (var item in tempEffects)
+                    effects.Remove(item);
 
+                var tempDiseases = new List<string>();
                 foreach (DictionaryEntry item in allergies)
                 {
-                    Hashtable t = (Hashtable)item.Value;
+                    var t = (Hashtable)item.Value;
                     if (t != null && t.ContainsKey(drugName))
                         t.Remove(drugName);
-
+                    if (t is {Count: 0})
+                        tempDiseases.Add(item.Key.ToString());
                 }
 
+                foreach (var item in tempDiseases)
+                    allergies.Remove(item);
                 SaveDrugs(drugs);
                 SaveEffects(effects);
                 SaveAllergies(allergies);
@@ -397,6 +413,180 @@ namespace Project
             Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
                               x.ElapsedMilliseconds * 1000 + " Micros");
         }
+        public static void CheckEffects(Dictionary<string, int> noskhe, Hashtable effects)
+        {
+            var checkInterference = false;
+            if (noskhe.Count > 0)
+            {
+                var y = new Stopwatch();
+                y.Start();
+                foreach (var item in noskhe)
+                {
+                    if (effects.ContainsKey(item.Key))
+                    {
+                        foreach (var drug in noskhe)
+                        {
+                            if (drug.Key != item.Key && effects[item.Key] is Hashtable x && x.Contains(drug.Key))
+                            {
+                                Console.WriteLine(item.Key + ":" + drug.Key + " has tadakhol " + x[drug.Key]?.ToString());
+                                checkInterference = true;
+                            }
+                        }
+                    }
+                }
+                y.Stop();
+                Console.WriteLine("time : " +
+                                  y.ElapsedMilliseconds * 1000 + " Micros");
+            }
+            else
+            {
+                Console.WriteLine("The prescription is empty");
+            }
+            if(!checkInterference)
+                Console.WriteLine("Not found the any Interference");
+        }
+        public static void CheckDisease(Dictionary<string, int> prescription, List<string> referralDiseases,
+            Hashtable allergies)
+        {
+            if (referralDiseases.Count > 0 && prescription.Count > 0)
+            {
+                var checkInterference = false;
+                var y = new Stopwatch();
+                y.Start();
+                foreach (var item in referralDiseases)
+                {
+                    if (allergies.ContainsKey(item))
+                    {
+                        foreach (var drug in prescription)
+                        {
+                            if (allergies[item] is Hashtable x && x.Contains(drug.Key) &&
+                                x[drug.Key]?.ToString() == "-")
+                            {
+                                Console.WriteLine(item + ":" + drug.Key + " has tadakhol " + x[drug.Key]?.ToString());
+                                checkInterference = true;
+                            }
+                        }
+                    }
+                }
+
+                y.Stop();
+                Console.WriteLine("time : " +
+                                  y.ElapsedMilliseconds * 1000 + " Micros");
+                if (!checkInterference)
+                    Console.WriteLine("Not found the any Interference");
+            }
+            else
+            {
+                Console.WriteLine("The prescription or referral diseases is(are) empty");
+            }
+        }
+        public static bool EnterDisease(ref List<string> referralDiseases)
+        {
+            Console.WriteLine("First enter number of diseases then enter name of them:");
+            var numDisease = 0;
+            try
+            {
+                numDisease = Convert.ToInt32(Console.ReadLine());
+            }
+            catch
+            {
+                Console.WriteLine("Please correct form of number diseases (inter only integer numbers)");
+                return false;
+            }
+
+            for (var i = 0; i < numDisease; i++)
+            {
+                referralDiseases.Add(Console.ReadLine());
+            }
+
+            return true;
+        }
+        public static bool EnterNoskhe(ref Dictionary<string, int> noskhe)
+        {
+            Console.WriteLine(
+                "first enter the numbers of drugs and thenEnter name of the drug and then num of each drugs");
+            var numberOfDrugs = 0;
+            var Line = new string[2];
+            try
+            {
+                numberOfDrugs = int.Parse(Console.ReadLine() ?? string.Empty);
+            }
+            catch
+            {
+                Console.WriteLine("Please enter integer number!");
+                return false;
+            }
+            for (int i = 0; i < numberOfDrugs; i++)
+            {
+                Line = Console.ReadLine()?.Split(' ');
+                try
+                {
+                    if (Line != null) noskhe.Add(Line[0], int.Parse(Line[1]));
+                }
+                catch
+                {
+                    Console.WriteLine("lotfan noskhe ra dorost vared konid");
+                    noskhe.Clear();
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static void CalculatePrice(Dictionary<string, int> prescription, Hashtable drugs)
+        {
+            if (prescription.Count > 0)
+            {
+                var x = new Stopwatch();
+                x.Start();
+                var finalPrice = 0;
+                foreach (var item in prescription)
+                    finalPrice += item.Value * Convert.ToInt32(drugs[item.Key.ToString()]);
+
+                Console.WriteLine("The price of prescription is= " + finalPrice);
+                x.Stop();
+                Console.WriteLine("time : " +
+                                  x.ElapsedMilliseconds * 1000 + " Micros");
+            }
+            else
+            {
+                Console.WriteLine("The prescription is empty!");
+            }
+        }
+        public static void PriceIncrease(Hashtable drugs)
+        {
+            Console.WriteLine("Enter the Percent of increase prices:");
+            double percent = 0.0f;
+            try
+            {
+                percent = Convert.ToDouble(Console.ReadLine());
+            }
+            catch
+            {
+                Console.WriteLine("The format of input is not correct!");
+                return;
+            }
+
+            if (percent < -100)
+                percent = -100;
+            percent += 100;
+            var x = new Stopwatch();
+            x.Start();
+            var tempDrugs = drugs;
+            drugs = new Hashtable();
+            foreach (DictionaryEntry item in tempDrugs)
+            {
+                if (item.Value != null)
+                {
+                    var perPrice = Convert.ToDouble(item.Value.ToString());
+                    drugs.Add(item.Key, Convert.ToString((perPrice * percent) / 100));
+                }
+            }
+            
+            SaveDrugs(drugs);
+            x.Stop();
+            Console.WriteLine("time : " +
+                              x.ElapsedMilliseconds * 1000 + " Micros");
+        }
         public static string GenerateRandomString()
         {
             const string chars = "abcdefghijklmnopqrstuvwxyz";
@@ -411,75 +601,13 @@ namespace Project
             var finalString = new String(stringChars);
             return finalString;
         }
-        public static void CheckEffects(Dictionary<string , int> noskhe , Hashtable effects)
-        {
-            var y = new Stopwatch();
-            y.Start();
-            foreach (var item in noskhe)
-            {
-                if( effects is Hashtable t && t.ContainsKey(item.Key))
-                {
-                    foreach(var daro in noskhe)
-                    {
-                        if(daro.Key != item.Key && t[item.Key] is Hashtable x && x.Contains(daro.Key))
-                        {
-                            Console.WriteLine(item.Key + ":" + daro.Key + " has tadakhol " +  x[daro.Key].ToString());
-                        }
-                    }
-                }
-            }
-            y.Stop();
-            Console.WriteLine("time : " +
-                              y.ElapsedMilliseconds * 1000 + " Micros");
-
-        }
-        public static bool EnterNoskhe(ref Dictionary<string, int> noskhe) 
-        {
-            var x = new Stopwatch();
-            x.Start();
-            Console.WriteLine(
-                " first enter the nums of dugs and thenEnter name of the drug and then num of drugs");
-            int numberOfDrugs = 0;
-            string[] Line = new string[2];
-            try
-            {
-                numberOfDrugs = int.Parse(Console.ReadLine());
-            }
-            catch
-            {
-                Console.WriteLine("lotfan yek adad vared konid");
-                x.Stop();
-                Console.WriteLine("time :" +
-                                  x.ElapsedMilliseconds * 1000 + " Micros");
-                return false;
-            }
-            for (int i = 0; i < numberOfDrugs; i++)
-            {
-                Line = Console.ReadLine().Split(' ');
-                try
-                {
-                    noskhe.Add(Line[0], int.Parse(Line[1]));
-                }
-                catch
-                {
-                    Console.WriteLine("lotfan noskhe ra dorost vared konid");
-                    noskhe.Clear();
-                    x.Stop();
-                    Console.WriteLine("time"+
-                                      x.ElapsedMilliseconds * 1000 + " Micros");
-                    return false;
-                }
-            }
-            x.Stop();
-            Console.WriteLine("time : " +
-                              x.ElapsedMilliseconds * 1000 + " Micros");
-            return true;
-        }
         public static void UserInterface()
         {
             Hashtable drugs = new Hashtable(), effects = new Hashtable(), allergies = new Hashtable();
             var diseases = new List<string>();
             var noskhe = new Dictionary<string, int>();
+            var referralDiseases = new List<string>();
+
             var time = new Stopwatch();
 
             Console.WriteLine("********** Menu **********" +
@@ -493,25 +621,44 @@ namespace Project
                               "\n7- search in 'disease' data set by name" +
                               "\n8- search in 'drugs', 'effects', 'allergies' data set by drugName" +
                               "\n9- search in 'diseases', 'allergies' data set by diseaseName" +
-                              "\n10- exit" +
-                              "\n11- enter the noskhe" +
-                              "\n12- chack tadakhol drugs in noskhe" +
-                              "\n13- clean noskhe" +
+                              "\n10- enter the prescription" +
+                              "\n11- enter the referral Diseases" +
+                              "\n12- check the allergies of referral Diseases" +
+                              "\n13- check the Interference drugs in prescription" +
+                              "\n14- clean prescription" +
+                              "\n15- clean referral Diseases" +
+                              "\n16- Calculate price" +
+                              "\n17- Increase price of drugs" +
+                              "\n18- exit" +
                               "\n**************************");
             var counter = 0;
             while (true)
             {
-                var order = Convert.ToInt32(Console.ReadLine());
-                if (order != 1 && order != 10 && counter == 0)
+                var check = false;
+                var order = 0;
+                while (!check)
+                {
+                    try
+                    {
+                        order = Convert.ToInt32(Console.ReadLine());
+                        check = true;
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Please correct form of orders (inter only integer numbers)");
+                    }
+                }
+
+                if (order != 1 && order != 18 && counter == 0)
                     Console.WriteLine("First should you read data from the data sets!!");
-                else if(order == 1 && counter == 0)
+                else if (order == 1 && counter == 0)
                 {
                     time.Start();
                     // read from memory
-                     diseases = ReadFromDisease();
-                     allergies = ReadFromAllergies();
-                     effects = ReadFromEffects();
-                     drugs = ReadFromDrugs();
+                    diseases = ReadFromDisease();
+                    allergies = ReadFromAllergies();
+                    effects = ReadFromEffects();
+                    drugs = ReadFromDrugs();
                     time.Stop();
                     Console.WriteLine("Execute time for read data :" + time.ElapsedMilliseconds * 1000 + " Micros");
 
@@ -528,7 +675,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         CreateDrug(replace, drugs, diseases, effects, allergies);
                     }
-                    counter++;
                 }
                 else if (order == 3)
                 {
@@ -539,7 +685,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         CreateDisease(replace, drugs, diseases, effects, allergies);
                     }
-                    counter++;
                 }
                 else if (order == 4)
                 {
@@ -550,7 +695,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         DeleteDrug(replace, drugs, diseases, effects, allergies);
                     }
-                    counter++;
                 }
                 else if (order == 5)
                 {
@@ -561,7 +705,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         DeleteDisease(replace, drugs, diseases, effects, allergies);
                     }
-                    counter++;
                 }
                 else if (order == 6)
                 {
@@ -572,7 +715,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         SearchByDrugName(replace, drugs);
                     }
-                    counter++;
                 }
                 else if (order == 7)
                 {
@@ -583,7 +725,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         SearchByDiseaseName(replace, diseases);
                     }
-                    counter++;
                 }
                 else if (order == 8)
                 {
@@ -594,7 +735,6 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         SearchByDrugName(replace, drugs, diseases, effects, allergies);
                     }
-                    counter++;
                 }
                 else if (order == 9)
                 {
@@ -606,38 +746,47 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         SearchByDiseaseName(replace, drugs, diseases, effects, allergies);
                     }
-                    counter++;
+                }
+                else if (order == 10)
+                {
+                    var temp = EnterNoskhe(ref noskhe);
+                    Console.WriteLine(temp ? "noskhe created." : "dobare talash konid.");
                 }
                 else if (order == 11)
                 {
-                    var temp = EnterNoskhe(ref noskhe);
-                    if (temp)
-                    {
-                        Console.WriteLine("noskhe created .");
-                    }
-                    else
-                    {
-                        Console.WriteLine("dobare talash konid .");
-                    }
-                    counter++;
+                    var temp = EnterDisease(ref referralDiseases);
+                    Console.WriteLine(temp ? "referralDiseases created." : "dobare talash konid.");
                 }
                 else if (order == 12)
                 {
-                    CheckEffects(noskhe, effects);
+                    CheckDisease(noskhe, referralDiseases, allergies);
                 }
                 else if (order == 13)
                 {
-                    var y = new Stopwatch();
-                    y.Start();
+                    CheckEffects(noskhe, effects);
+                }
+                else if (order == 14)
+                {
                     noskhe.Clear();
                     Console.WriteLine("cleared");
-                    y.Stop();
-                    Console.WriteLine("time : " +
-                                      y.ElapsedMilliseconds * 1000 + " Micros");
-                    counter++;
                 }
-                if (order == 10)
+                else if (order == 15)
+                {
+                    referralDiseases.Clear();
+                    Console.WriteLine("cleared");
+                }
+                else if (order == 16)
+                {
+                    CalculatePrice(noskhe, drugs);
+                }
+                else if (order == 17)
+                {
+                    PriceIncrease(drugs);
+                }
+                else if (order == 18)
                     break;
+                else
+                    Console.WriteLine("Out range of the orders!");
             }
         }
         private static void Main()
