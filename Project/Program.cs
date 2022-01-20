@@ -299,31 +299,31 @@ namespace Project
                 if (effects.ContainsKey(drugName))
                     effects.Remove(drugName);
 
-                //var tempEffects = new List<string>();
+                var tempEffects = new List<string>();
                 foreach (DictionaryEntry item in effects)
                 {
                     Hashtable t = (Hashtable)item.Value;
                     if (t != null && t.ContainsKey(drugName))
                         t.Remove(drugName);
-                    //if (t is { Count: 0 })
-                    //    tempEffects.Add(item.Key.ToString());
+                    if (t is { Count: 0 })
+                        tempEffects.Add(item.Key.ToString());
 
                 }
-                //foreach (var item in tempEffects)
-                //    effects.Remove(item);
+                foreach (var item in tempEffects)
+                    effects.Remove(item);
 
-                //var tempDiseases = new List<string>();
+                var tempDiseases = new List<string>();
                 foreach (DictionaryEntry item in allergies)
                 {
                     var t = (Hashtable)item.Value;
                     if (t != null && t.ContainsKey(drugName))
                         t.Remove(drugName);
-                    //if (t is { Count: 0 })
-                    //    tempDiseases.Add(item.Key.ToString());
+                    if (t is { Count: 0 })
+                        tempDiseases.Add(item.Key.ToString());
                 }
 
-                //foreach (var item in tempDiseases)
-                //    allergies.Remove(item);
+                foreach (var item in tempDiseases)
+                    allergies.Remove(item);
                 //SaveDrugs(drugs);
                 //SaveEffects(effects);
                 //SaveAllergies(allergies);
