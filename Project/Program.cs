@@ -3,7 +3,6 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Project
 {
@@ -94,10 +93,16 @@ namespace Project
             writerAlergies.Close();
             
         }
-        public static List<string> ReadFromDisease()
+        public static Hashtable ReadFromDisease()
         {
-            var diseases = new List<string>();
-            diseases.AddRange(File.ReadAllLines(@"../datasets/diseases.txt"));
+            var Line = "";
+            var diseases = new Hashtable();
+            var reader = new StreamReader(@"../datasets/diseases.txt");
+            while ((Line = reader.ReadLine()) != null)
+            {
+                diseases.Add(Line, "");
+            }
+            reader.Close();
 
             return diseases;
         }
@@ -169,9 +174,11 @@ namespace Project
 
             return drugs;
         }
-        public static void CreateDrug(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
+        public static void CreateDrug(string drugName, Hashtable drugs, Hashtable disease, Hashtable effects,
             Hashtable allergies)
         {
+            var diseaseTemp = new string[disease.Count];
+            disease.Keys.CopyTo(diseaseTemp, 0);
             var x = new Stopwatch();
             x.Start();
 
@@ -183,43 +190,35 @@ namespace Project
 
                 var random = new Random();
                 var numberRandomDrug = random.Next(1, 4);
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Number of random drugs: " + numberRandomDrug +
                                   "\n-------------------------------------");
                 Console.WriteLine("random effects that generated:");
-                Console.ResetColor();
                 var temp = new Hashtable();
                 for (var i = 0; i < numberRandomDrug; i++)
                 {
                     var index = random.Next(0, drugs.Count);
                     var effectiveTemp = "Eff_" + GenerateRandomString();
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine(effectiveTemp);
-                    Console.ResetColor();
 
                     temp.Add(drugsName[index], effectiveTemp);
                 }
-
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                
                 Console.WriteLine("-------------------------------------");
-                Console.ResetColor();
                 //add effects
                 effects.Add(drugName, temp);
 
                 //add to diseases data set
                 var numberDiseases = random.Next(1, 5);
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Number of random diseases: " + numberDiseases);
-                Console.ResetColor();
                 for (var i = 0; i < numberDiseases; i++)
                 {
                     var index = random.Next(0, disease.Count);
                     const string effectMark = "+-";
 
-                    if (allergies[disease[index]] is Hashtable tempDisease) tempDisease.Add(drugName, effectMark[random.Next(effectMark.Length)]);
+                    if (allergies[diseaseTemp[index]] is Hashtable tempDisease) tempDisease.Add(drugName, effectMark[random.Next(effectMark.Length)]);
                     else
                     {
-                        allergies.Add(disease[index],
+                        allergies.Add(diseaseTemp[index],
                             new Hashtable {{drugName, effectMark[random.Next(effectMark.Length)]}});
                     }
                 }
@@ -227,23 +226,16 @@ namespace Project
                 //add the drug to drugs data set
                 var drugPrice = random.Next(1000, 100000);
                 drugs.Add(drugName, Convert.ToString(drugPrice));
-
-                //SaveDrugs(drugs);
-                //SaveEffects(effects);
-                //SaveAllergies(allergies);
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("already exist this drug in 'drugs' data set!");
-                Console.ResetColor();
             }
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Execute time for create new Drug process: " + x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
+            Console.WriteLine("Execute time for create new Drug process: " + x.Elapsed + "( " +
+                              x.ElapsedMilliseconds * 1000 + " Micros)");
         }
-        public static void CreateDisease(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
+        public static void CreateDisease(string diseaseName, Hashtable drugs, Hashtable disease, Hashtable effects,
             Hashtable allergies)
         {
             var x = new Stopwatch();
@@ -257,10 +249,8 @@ namespace Project
 
                 var random = new Random();
                 var numberRandomDrug = random.Next(1, 5);
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Number of random drugs that generated: " + numberRandomDrug +
                                   "\n-----------------------------------");
-                Console.ResetColor();
                 var temp = new Hashtable();
                 for (var i = 0; i < numberRandomDrug; i++)
                 {
@@ -270,24 +260,18 @@ namespace Project
                 }
 
                 //add the disease to diseases data set
-                disease.Add(diseaseName);
+                disease.Add(diseaseName, "");
                 allergies.Add(diseaseName, temp);
-
-                //SaveDiseases(disease);
-                //SaveAllergies(allergies);
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("already exist this disease in 'drugs' data set!");
-                Console.ResetColor();
             }
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Execute time for create new Disease process: " + x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
+            Console.WriteLine("Execute time for create new Disease process: " + x.Elapsed + "( " +
+                              x.ElapsedMilliseconds * 1000 + " Micros)");
         }
-        public static void DeleteDrug(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
+        public static void DeleteDrug(string drugName, Hashtable drugs, Hashtable disease, Hashtable effects,
             Hashtable allergies)
         {
             var x = new Stopwatch();
@@ -324,24 +308,17 @@ namespace Project
 
                 foreach (var item in tempDiseases)
                     allergies.Remove(item);
-                //SaveDrugs(drugs);
-                //SaveEffects(effects);
-                //SaveAllergies(allergies);
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Not exist this drug in 'drugs' data set!");
-                Console.ResetColor();
             }
                 
 
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("Execute time for delete the Drug process: " + x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
         }
-        public static void DeleteDisease(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
+        public static void DeleteDisease(string diseaseName, Hashtable drugs, Hashtable disease, Hashtable effects,
             Hashtable allergies)
         {
             var x = new Stopwatch();
@@ -353,20 +330,13 @@ namespace Project
 
                 if (allergies.ContainsKey(diseaseName))
                     allergies.Remove(diseaseName);
-
-                //SaveDiseases(disease);
-                //SaveAllergies(allergies);
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Not exist this disease in 'diseases' data set!");
-                Console.ResetColor();
             }
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("Execute time for delete the disease process: " + x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
         }
         public static void SearchByDrugName(string drugName, Hashtable drugs)
         {
@@ -375,47 +345,37 @@ namespace Project
 
             if (drugs.ContainsKey(drugName))
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Name of drug: " + drugName +
                                   "\nPrice of drug: " + drugs[drugName]);
-                Console.ResetColor();
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Not found this drug in 'drugs' data set!");
-                Console.ResetColor();
             }
 
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Execute time for search the Drug: " + x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
+            Console.WriteLine("Execute time for search the Drug: " + x.Elapsed + " Micros");
         }
-        public static void SearchByDiseaseName(string diseaseName, List<string> disease)
+        public static void SearchByDiseaseName(string diseaseName, Hashtable disease)
         {
             var x = new Stopwatch();
             x.Start();
 
-            if (disease.Contains(diseaseName))
+            if (disease.ContainsKey(diseaseName))
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("Name of disease: " + diseaseName);
-                Console.ResetColor();
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Not found this disease in 'diseases' data set!");
-                Console.ResetColor();
             }
 
             x.Stop();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Execute time for search the Disease: " + x.ElapsedMilliseconds * 1000 + " Micros");
+            Console.WriteLine("Execute time for search the Disease: " + x.Elapsed + " Micros");
             Console.ResetColor();
         }
-        public static void SearchByDrugName(string drugName, Hashtable drugs, List<string> disease, Hashtable effects,
+        public static void SearchByDrugName(string drugName, Hashtable drugs, Hashtable disease, Hashtable effects,
             Hashtable allergies)
         {
             var x = new Stopwatch();
@@ -459,15 +419,15 @@ namespace Project
             x.Stop();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
-                              x.ElapsedMilliseconds * 1000 + " Micros");
+                              x.Elapsed + " Micros");
             Console.ResetColor();
         }
-        public static void SearchByDiseaseName(string diseaseName, Hashtable drugs, List<string> disease, Hashtable effects,
+        public static void SearchByDiseaseName(string diseaseName, Hashtable drugs, Hashtable disease, Hashtable effects,
             Hashtable allergies)
         {
             var x = new Stopwatch();
             x.Start();
-            if (disease.Contains(diseaseName))
+            if (disease.ContainsKey(diseaseName))
             {
                 if (allergies.ContainsKey(diseaseName))
                 {
@@ -476,25 +436,19 @@ namespace Project
                         {
                             if (item.Value != null && (string) item.Value == "+")
                             {
-                                Console.ForegroundColor = ConsoleColor.DarkGreen;
                                 Console.WriteLine(item.Key + " has effect: " + item.Value);
                             }
                         }
                 }
                 Console.WriteLine("----------------------------------");
-                Console.ResetColor();
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
-                Console.ResetColor();
             }
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
                               x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
         }
         public static void CheckEffects(Dictionary<string, int> noskhe, Hashtable effects)
         {
@@ -511,19 +465,15 @@ namespace Project
                         {
                             if (drug.Key != item.Key && effects[item.Key] is Hashtable x && x.Contains(drug.Key))
                             {
-                                Console.ForegroundColor = ConsoleColor.DarkGreen;
                                 Console.WriteLine(item.Key + ":" + drug.Key + " has tadakhol " + x[drug.Key]?.ToString());
                                 checkInterference = true;
-                                Console.ResetColor();
                             }
                         }
                     }
                 }
                 y.Stop();
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("time : " +
                                   y.ElapsedMilliseconds * 1000 + " Micros");
-                Console.ResetColor();
             }
             else
             {
@@ -555,39 +505,29 @@ namespace Project
                             if (allergies[item] is Hashtable x && x.Contains(drug.Key) &&
                                 x[drug.Key]?.ToString() == "-")
                             {
-                                Console.ForegroundColor = ConsoleColor.DarkGreen;
                                 Console.WriteLine(item + ":" + drug.Key + " has tadakhol " + x[drug.Key]?.ToString());
                                 checkInterference = true;
-                                Console.ResetColor();
                             }
                         }
                     }
                 }
 
                 y.Stop();
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("time : " +
                                   y.ElapsedMilliseconds * 1000 + " Micros");
-                Console.ResetColor();
                 if (!checkInterference)
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine("Not found the any Interference");
-                    Console.ResetColor();
                 }
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("The prescription or referral diseases is(are) empty");
-                Console.ResetColor();
             }
         }
         public static bool EnterDisease(ref List<string> referralDiseases)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("First enter number of diseases then enter name of them:");
-            Console.ResetColor();
             var numDisease = 0;
             try
             {
@@ -595,9 +535,7 @@ namespace Project
             }
             catch
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Please correct form of number diseases (inter only integer numbers)");
-                Console.ResetColor();
                 return false;
             }
 
@@ -610,10 +548,8 @@ namespace Project
         }
         public static bool EnterNoskhe(ref Dictionary<string, int> noskhe)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(
                 "first enter the numbers of drugs and thenEnter name of the drug and then num of each drugs");
-            Console.ResetColor();
             var numberOfDrugs = 0;
             var Line = new string[2];
             try
@@ -622,9 +558,7 @@ namespace Project
             }
             catch
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("Please enter integer number!");
-                Console.ResetColor();
                 return false;
             }
             for (int i = 0; i < numberOfDrugs; i++)
@@ -636,9 +570,7 @@ namespace Project
                 }
                 catch
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine("lotfan noskhe ra dorost vared konid");
-                    Console.ResetColor();
                     noskhe.Clear();
                     return false;
                 }
@@ -654,27 +586,19 @@ namespace Project
                 var finalPrice = 0;
                 foreach (var item in prescription)
                     finalPrice += item.Value * Convert.ToInt32(drugs[item.Key.ToString()]);
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine("The price of prescription is= " + finalPrice);
-                Console.ResetColor();
                 x.Stop();
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("time : " +
                                   x.ElapsedMilliseconds * 1000 + " Micros");
-                Console.ResetColor();
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("The prescription is empty!");
-                Console.ResetColor();
             }
         }
         public static void PriceIncrease(Hashtable drugs)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("Enter the Percent of increase prices:");
-            Console.ResetColor();
             double percent = 0.0f;
             try
             {
@@ -682,9 +606,7 @@ namespace Project
             }
             catch
             {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine("The format of input is not correct!");
-                Console.ResetColor();
                 return;
             }
 
@@ -706,10 +628,8 @@ namespace Project
             
             //SaveDrugs(drugs);
             x.Stop();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("time : " +
                               x.ElapsedMilliseconds * 1000 + " Micros");
-            Console.ResetColor();
         }
         public static string GenerateRandomString()
         {
@@ -725,15 +645,15 @@ namespace Project
             var finalString = new String(stringChars);
             return finalString;
         }
-        public static void UserInterface()
+
+        private static void Main()
         {
             Hashtable drugs = new Hashtable(), effects = new Hashtable(), allergies = new Hashtable();
-            var diseases = new List<string>();
+            var diseases = new Hashtable();
             var noskhe = new Dictionary<string, int>();
             var referralDiseases = new List<string>();
 
             var time = new Stopwatch();
-            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("********** Menu **********" +
                               "\nPlease inter the number of Order:" +
                               "\n1- Read from data sets and store in data structure" +
@@ -755,7 +675,6 @@ namespace Project
                               "\n17- Increase price of drugs" +
                               "\n18- exit and save files" +
                               "\n**************************");
-            Console.ResetColor();
             var counter = 0;
             while (true)
             {
@@ -770,121 +689,322 @@ namespace Project
                     }
                     catch
                     {
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine("Please correct form of orders (inter only integer numbers)");
-                        Console.ResetColor();
                     }
                 }
 
                 if (order != 1 && order != 18 && counter == 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine("First should you read data from the data sets!!");
-                    Console.ResetColor();
                 }
                 else if (order == 1 && counter == 0)
                 {
                     time.Start();
-                    // read from memory
                     diseases = ReadFromDisease();
                     allergies = ReadFromAllergies();
                     effects = ReadFromEffects();
                     drugs = ReadFromDrugs();
                     time.Stop();
+
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine("Execute time for read data :" + time.ElapsedMilliseconds * 1000 + " Micros");
+                    Console.WriteLine("Execute time for read data :" + time.Elapsed + "( " +
+                                      time.ElapsedMilliseconds * 1000 + " Micros)");
                     Console.ResetColor();
 
                     counter++;
                 }
                 else if (order == 1 && counter > 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine("data read from data set for once");
-                    Console.ResetColor();
                 }
                 else if (order == 2)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of drug:");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        CreateDrug(replace, drugs, diseases, effects, allergies);
+
+                        var diseaseTemp = new string[diseases.Count];
+                        diseases.Keys.CopyTo(diseaseTemp, 0);
+
+                        var drugsName = new string[drugs.Count];
+                        drugs.Keys.CopyTo(drugsName, 0);
+
+                        var y = new Stopwatch();
+                        y.Start();
+
+                        if (!drugs.ContainsKey(replace))
+                        {
+                            //convert drug name in hash table to array to access with index
+                            var random = new Random();
+                            var numberRandomDrug = random.Next(1, 4);
+                            Console.WriteLine("Number of random drugs: " + numberRandomDrug +
+                                              "\n-------------------------------------");
+                            Console.WriteLine("random effects that generated:");
+                            var temp = new Hashtable();
+                            for (var i = 0; i < numberRandomDrug; i++)
+                            {
+                                var index = random.Next(0, drugs.Count);
+                                var effectiveTemp = "Eff_" + GenerateRandomString();
+                                Console.WriteLine(effectiveTemp);
+
+                                temp.Add(drugsName[index], effectiveTemp);
+                            }
+
+                            Console.WriteLine("-------------------------------------");
+                            //add effects
+                            effects.Add(replace, temp);
+
+                            //add to diseases data set
+                            var numberDiseases = random.Next(1, 5);
+                            Console.WriteLine("Number of random diseases: " + numberDiseases);
+                            for (var i = 0; i < numberDiseases; i++)
+                            {
+                                var index = random.Next(0, diseases.Count);
+                                const string effectMark = "+-";
+
+                                if (allergies[diseaseTemp[index]] is Hashtable tempDisease) tempDisease.Add(replace, effectMark[random.Next(effectMark.Length)]);
+                                else
+                                {
+                                    allergies.Add(diseaseTemp[index],
+                                        new Hashtable { { replace, effectMark[random.Next(effectMark.Length)] } });
+                                }
+                            }
+
+                            //add the drug to drugs data set
+                            var drugPrice = random.Next(1000, 100000);
+                            drugs.Add(replace, Convert.ToString(drugPrice));
+                        }
+                        else
+                        {
+                            Console.WriteLine("already exist this drug in 'drugs' data set!");
+                        }
+                        y.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("Execute time for create new Drug process: " + y.Elapsed + "( " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.ResetColor();
                     }
                 }
                 else if (order == 3)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of disease:");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        CreateDisease(replace, drugs, diseases, effects, allergies);
+                        var y = new Stopwatch();
+                        y.Start();
+
+                        if (!diseases.Contains(replace))
+                        {
+                            //convert drug name in hash table to array to access with index
+                            var drugsName = new string[drugs.Count];
+                            drugs.Keys.CopyTo(drugsName, 0);
+
+                            var random = new Random();
+                            var numberRandomDrug = random.Next(1, 5);
+                            Console.WriteLine("Number of random drugs that generated: " + numberRandomDrug +
+                                              "\n-----------------------------------");
+                            var temp = new Hashtable();
+                            for (var i = 0; i < numberRandomDrug; i++)
+                            {
+                                var index = random.Next(0, drugs.Count);
+                                const string effectMark = "+-";
+                                temp.Add(drugsName[index], effectMark[random.Next(effectMark.Length)]);
+                            }
+
+                            //add the disease to diseases data set
+                            diseases.Add(replace, "");
+                            allergies.Add(replace, temp);
+                        }
+                        else
+                        {
+                            Console.WriteLine("already exist this disease in 'drugs' data set!");
+                        }
+                        y.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("Execute time for create new Disease process: " + y.Elapsed + "( " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.ResetColor();
                     }
                 }
                 else if (order == 4)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of the drug that you want remove:");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        DeleteDrug(replace, drugs, diseases, effects, allergies);
+                        var y = new Stopwatch();
+
+                        try
+                        {
+                            y.Start();
+                            drugs.Remove(replace);
+                            if (effects.ContainsKey(replace))
+                                effects.Remove(replace);
+
+                            var tempEffects = new List<string>();
+                            foreach (DictionaryEntry item in effects)
+                            {
+                                Hashtable t = (Hashtable)item.Value;
+                                if (t != null && t.ContainsKey(replace))
+                                    t.Remove(replace);
+                                if (t is { Count: 0 })
+                                    tempEffects.Add(item.Key.ToString());
+
+                            }
+                            foreach (var item in tempEffects)
+                                effects.Remove(item);
+
+                            var tempDiseases = new List<string>();
+                            foreach (DictionaryEntry item in allergies)
+                            {
+                                var t = (Hashtable)item.Value;
+                                if (t != null && t.ContainsKey(replace))
+                                    t.Remove(replace);
+                                if (t is { Count: 0 })
+                                    tempDiseases.Add(item.Key.ToString());
+                            }
+
+                            foreach (var item in tempDiseases)
+                                allergies.Remove(item);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Not exist this drug in 'drugs' data set!");
+                        }
+                        y.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("Execute time for delete the Drug process: " + y.Elapsed + "( " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.ResetColor();
                     }
                 }
                 else if (order == 5)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of the disease that you want remove:");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        DeleteDisease(replace, drugs, diseases, effects, allergies);
+                        var y = new Stopwatch();
+                        try
+                        {
+                            y.Start();
+                            diseases.Remove(replace);
+
+                            if (allergies.ContainsKey(replace))
+                                allergies.Remove(replace);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Not exist this disease in 'diseases' data set!");
+                        }
+                        y.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("Execute time for delete the disease process: " + y.Elapsed + "( " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.ResetColor();
                     }
                 }
                 else if (order == 6)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of the drug that you want to search:");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        SearchByDrugName(replace, drugs);
+                        var y = new Stopwatch();
+                        y.Start();
+
+                        if(drugs.ContainsKey(replace))
+                        {
+                            Console.WriteLine("Name of drug: " + replace +
+                                              "\nPrice of drug: " + drugs[replace]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Not found this drug in 'drugs' data set!");
+                        }
+
+                        y.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("Execute time for search the Drug: " + y.Elapsed + "( " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.ResetColor();
                     }
                 }
                 else if (order == 7)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of the disease that you want to search:");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        SearchByDiseaseName(replace, diseases);
+                        var y = new Stopwatch();
+                        y.Start();
+
+                        if (diseases.ContainsKey(replace))
+                        {
+                            Console.WriteLine("Name of disease: " + replace);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Not found this disease in 'diseases' data set!");
+                        }
+
+                        y.Stop();
+                        Console.WriteLine("Execute time for search the Disease: " + y.Elapsed + " Micros");
                     }
                 }
                 else if (order == 8)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Inter name of the drug that you want to search in 'effects', 'allergies':");
-                    Console.ResetColor();
                     var x = Console.ReadLine();
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
-                        SearchByDrugName(replace, drugs, diseases, effects, allergies);
+                        var y = new Stopwatch();
+                        
+                        if (drugs.ContainsKey(replace))
+                        {
+                            y.Start();
+                            Console.WriteLine("Related to the 'effects' data set:");
+                            foreach (DictionaryEntry item in effects)
+                            {
+                                if (item.Value is Hashtable t && t.ContainsKey(replace))
+                                {
+                                    Console.WriteLine(replace + " has effect: " + t[replace] + " on " + item.Key);
+                                }
+                            }
+
+                            Console.WriteLine(
+                                "----------------------------------\nRelated to the 'allergies' data set:");
+                            foreach (DictionaryEntry item in allergies)
+                            {
+                                if (item.Value is Hashtable t && t.ContainsKey(replace))
+                                {
+                                    Console.WriteLine(replace + " has effect: " + t[replace] + " on " + item.Key);
+                                }
+                            }
+
+                            Console.WriteLine("----------------------------------");
+                        }
+                        else
+                        {
+                            y.Start();
+                            Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
+                        }
+
+                        y.Stop();
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine(
+                            "Execute time for search the drug in 'drugs', 'effects', 'allergies' data set: " +
+                            y.Elapsed + "( " + y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.ResetColor();
                     }
                 }
                 else if (order == 9)
@@ -948,10 +1068,10 @@ namespace Project
                 {
                     var x = new Stopwatch();
                     x.Start();
-                    SaveDiseases(diseases);
-                    SaveAllergies(allergies);
-                    SaveDrugs(drugs);
-                    SaveEffects(effects);
+                    //SaveDiseases(diseases);
+                    //SaveAllergies(allergies);
+                    //SaveDrugs(drugs);
+                    //SaveEffects(effects);
                     x.Stop();
                     Console.WriteLine("time : " +
                                       x.ElapsedMilliseconds * 1000 + " Micros");
@@ -964,10 +1084,6 @@ namespace Project
                     Console.ResetColor();
                 }
             }
-        }
-        private static void Main()
-        {
-            UserInterface();
         }
     }
 }
