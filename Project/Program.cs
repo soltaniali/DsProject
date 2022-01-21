@@ -19,13 +19,13 @@ namespace Project
 
             WriteDrugs.Close();
         }
-        public static void SaveDiseases(List<string> diseases)
+        public static void SaveDiseases(Hashtable diseases)
         {
             File.Delete(@"../datasets/diseases.txt");
             StreamWriter writeNewDis = new StreamWriter(@"../datasets/diseases.txt");
-            foreach (var item in diseases)
+            foreach (DictionaryEntry item in diseases)
             {
-                writeNewDis.WriteLine(item);
+                writeNewDis.WriteLine(item.Key);
             }
 
             writeNewDis.Close();
@@ -1068,13 +1068,13 @@ namespace Project
                 {
                     var x = new Stopwatch();
                     x.Start();
-                    //SaveDiseases(diseases);
-                    //SaveAllergies(allergies);
-                    //SaveDrugs(drugs);
-                    //SaveEffects(effects);
+                    SaveDiseases(diseases);
+                    SaveAllergies(allergies);
+                    SaveDrugs(drugs);
+                    SaveEffects(effects);
                     x.Stop();
-                    Console.WriteLine("time : " +
-                                      x.ElapsedMilliseconds * 1000 + " Micros");
+                    Console.WriteLine("time : " + x.Elapsed + "( " +
+                                      x.ElapsedMilliseconds * 1000 + " Micros)");
                     break;
                 }
                 else
