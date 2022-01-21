@@ -17,10 +17,10 @@ C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\bin\Deb
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\bin\Debug\netcoreapp3.1\Project.runtimeconfig.dev.json
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\bin\Debug\netcoreapp3.1\Project.dll
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\bin\Debug\netcoreapp3.1\Project.pdb
+C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.csproj.AssemblyReference.cache
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.AssemblyInfoInputs.cache
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.AssemblyInfo.cs
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.csproj.CoreCompileInputs.cache
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.dll
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.pdb
 C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.genruntimeconfig.cache
-C:\Users\YAAli\Desktop\DS\HomeWork_DS\DsProject\GitHub\DsProject\Project\obj\Debug\netcoreapp3.1\Project.csproj.AssemblyReference.cache
