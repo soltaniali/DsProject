@@ -189,6 +189,7 @@ namespace Project
             var referralDiseases = new List<string>();
 
             var time = new Stopwatch();
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("********** Menu **********" +
                               "\nPlease inter the number of Order:" +
                               "\n1- Read from data sets and store in data structure" +
@@ -211,6 +212,7 @@ namespace Project
                               "\n18- exit and save files" +
                               "\n19- exit" +
                               "\n**************************");
+            Console.ResetColor();
             var counter = 0;
             while (true)
             {
@@ -522,7 +524,8 @@ namespace Project
                         }
 
                         y.Stop();
-                        Console.WriteLine("Execute time for search the Disease: " + y.ElapsedMilliseconds * 1000 + " Micros");
+                        Console.WriteLine("Execute time for search the Disease: " + y.Elapsed + "( " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros)");
                     }
                 }
                 else if (order == 8)
@@ -819,6 +822,7 @@ namespace Project
                     var b = new Thread(Program.SaveDrugs);
                     var c = new Thread(Program.SaveAllergies);
                     var d = new Thread(Program.SaveEffects);
+
                     var x = new Stopwatch();
                     x.Start();
 
@@ -828,8 +832,10 @@ namespace Project
                     d.Start();
 
                     x.Stop();
-                    Console.WriteLine("time : " + x.ElapsedMilliseconds +
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("time : "+
                                       x.ElapsedMilliseconds * 1000 + " Micros");
+                    Console.ResetColor();
                     break;
                 }
                 else if (order == 19)
