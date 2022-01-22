@@ -1,8 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 
 namespace Project
@@ -77,7 +77,7 @@ namespace Project
             {
                 form = item.Key.ToString();
                 form += " :";
-                foreach (DictionaryEntry obj in (Hashtable) item.Value)
+                foreach (DictionaryEntry obj in (Hashtable)item.Value)
                 {
                     counter++;
                     form += " (";
@@ -85,7 +85,7 @@ namespace Project
                     form += ",";
                     form += obj.Value.ToString();
                     form += ") ";
-                    if (counter < ((Hashtable) item.Value).Count)
+                    if (counter < ((Hashtable)item.Value).Count)
                     {
                         form += ";";
                     }
@@ -97,7 +97,7 @@ namespace Project
             }
 
             writerAlergies.Close();
-            
+
         }
         public static void ReadFromDisease()
         {
@@ -252,7 +252,6 @@ namespace Project
                     c.Start();
                     d.Start();
                     time.Stop();
-
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                     Console.WriteLine("Execute time for read data :" +
                                       time.ElapsedMilliseconds * 1000 + " Micros");
@@ -332,7 +331,7 @@ namespace Project
                                 else
                                 {
                                     Program.Allergies.Add(diseaseTemp[index],
-                                        new Hashtable {{replace, effectMark[random.Next(effectMark.Length)]}});
+                                        new Hashtable { { replace, effectMark[random.Next(effectMark.Length)] } });
                                 }
                             }
 
@@ -409,33 +408,21 @@ namespace Project
                             Program.Drugs.Remove(replace);
                             if (Program.Effects.ContainsKey(replace))
                                 Program.Effects.Remove(replace);
-
-                            var tempEffects = new List<string>();
+                            
                             foreach (DictionaryEntry item in Program.Effects)
                             {
-                                Hashtable t = (Hashtable) item.Value;
+                                Hashtable t = (Hashtable)item.Value;
                                 if (t != null && t.ContainsKey(replace))
                                     t.Remove(replace);
-                                if (t is {Count: 0})
-                                    tempEffects.Add(item.Key.ToString());
 
                             }
-
-                            foreach (var item in tempEffects)
-                                Program.Effects.Remove(item);
-
-                            var tempDiseases = new List<string>();
+                            
                             foreach (DictionaryEntry item in Program.Allergies)
                             {
-                                var t = (Hashtable) item.Value;
+                                var t = (Hashtable)item.Value;
                                 if (t != null && t.ContainsKey(replace))
                                     t.Remove(replace);
-                                if (t is {Count: 0})
-                                    tempDiseases.Add(item.Key.ToString());
                             }
-
-                            foreach (var item in tempDiseases)
-                                Program.Allergies.Remove(item);
                         }
                         else
                         {
@@ -486,7 +473,7 @@ namespace Project
                         var y = new Stopwatch();
                         y.Start();
 
-                        if(Program.Drugs.ContainsKey(replace))
+                        if (Program.Drugs.ContainsKey(replace))
                         {
                             Console.WriteLine("Name of drug: " + replace +
                                               "\nPrice of drug: " + Program.Drugs[replace]);
@@ -534,6 +521,7 @@ namespace Project
                     if (x != null)
                     {
                         var replace = x.Replace(" ", string.Empty);
+
                         var y = new Stopwatch();
 
                         y.Start();
@@ -547,7 +535,6 @@ namespace Project
                                     Console.WriteLine(replace + " has effect: " + t[replace] + " on " + item.Key);
                                 }
                             }
-
                             Console.WriteLine(
                                 "----------------------------------\nRelated to the 'allergies' data set:");
                             foreach (DictionaryEntry item in Program.Allergies)
@@ -557,7 +544,6 @@ namespace Project
                                     Console.WriteLine(replace + " has effect: " + t[replace] + " on " + item.Key);
                                 }
                             }
-
                             Console.WriteLine("----------------------------------");
                         }
                         else
@@ -831,7 +817,7 @@ namespace Project
 
                     x.Stop();
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine("Execution time : "+
+                    Console.WriteLine("Execution time : " +
                                       x.ElapsedMilliseconds * 1000 + " Micros");
                     Console.ResetColor();
                     break;
@@ -847,6 +833,8 @@ namespace Project
                     Console.ResetColor();
                 }
             }
+
+            Console.ReadKey();
         }
     }
 }
