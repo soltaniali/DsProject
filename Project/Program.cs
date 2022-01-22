@@ -403,9 +403,9 @@ namespace Project
                         var replace = x.Replace(" ", string.Empty);
                         var y = new Stopwatch();
 
+                        y.Start();
                         if (Program.Drugs.ContainsKey(replace))
                         {
-                            y.Start();
                             Program.Drugs.Remove(replace);
                             if (Program.Effects.ContainsKey(replace))
                                 Program.Effects.Remove(replace);
@@ -439,7 +439,6 @@ namespace Project
                         }
                         else
                         {
-                            y.Start();
                             Console.WriteLine("Not exist this drug in 'drugs' data set!");
                         }
 
@@ -524,8 +523,8 @@ namespace Project
                         }
 
                         y.Stop();
-                        Console.WriteLine("Execute time for search the Disease: " + y.Elapsed + "( " +
-                                          y.ElapsedMilliseconds * 1000 + " Micros)");
+                        Console.WriteLine("Execute time for search the Disease: " +
+                                          y.ElapsedMilliseconds * 1000 + " Micros");
                     }
                 }
                 else if (order == 8)
@@ -536,10 +535,10 @@ namespace Project
                     {
                         var replace = x.Replace(" ", string.Empty);
                         var y = new Stopwatch();
-                        
+
+                        y.Start();
                         if (Program.Drugs.ContainsKey(replace))
                         {
-                            y.Start();
                             Console.WriteLine("Related to the 'effects' data set:");
                             foreach (DictionaryEntry item in Program.Effects)
                             {
@@ -563,7 +562,6 @@ namespace Project
                         }
                         else
                         {
-                            y.Start();
                             Console.WriteLine("Not found this drug in 'drugs','effects','allergies' data set!");
                         }
 
@@ -833,7 +831,7 @@ namespace Project
 
                     x.Stop();
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine("time : "+
+                    Console.WriteLine("Execution time : "+
                                       x.ElapsedMilliseconds * 1000 + " Micros");
                     Console.ResetColor();
                     break;
